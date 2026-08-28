@@ -1,5 +1,6 @@
 import eslint from "@eslint/js";
 import eslintConfigPrettier from "eslint-config-prettier";
+import { fileURLToPath, URL } from "node:url";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
@@ -16,7 +17,7 @@ export default tseslint.config(
     languageOptions: {
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: import.meta.dirname,
+        tsconfigRootDir: fileURLToPath(new URL(".", import.meta.url)),
       },
     },
   },

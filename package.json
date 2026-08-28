@@ -41,13 +41,13 @@
     "sms"
   ],
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
-    "eslint": "^10.9.1",
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
     "eslint-config-prettier": "^10.1.8",
     "prettier": "^3.9.6",
     "tsup": "^8.5.1",
     "typescript": "5.9.3",
     "typescript-eslint": "^8.68.0",
-    "vitest": "^4.1.11"
+    "vitest": "^3.2.7"
   }
 }
