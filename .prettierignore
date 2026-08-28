@@ -1,0 +1,6 @@
+coverage/
+dist/
+node_modules/
+Halosis API Documentation.postman_collection.json
+package-lock.json
+
