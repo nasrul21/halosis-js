@@ -5,6 +5,25 @@
   "license": "MIT",
   "private": true,
   "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -14,5 +33,9 @@
     "api",
     "whatsapp",
     "sms"
-  ]
+  ],
+  "devDependencies": {
+    "tsup": "^8.5.1",
+    "typescript": "5.9.3"
+  }
 }
