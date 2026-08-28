@@ -1,0 +1,18 @@
+{
+  "name": "halosis",
+  "version": "0.1.0",
+  "description": "Server-side Node.js SDK for the Halosis API",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "halosis",
+    "sdk",
+    "api",
+    "whatsapp",
+    "sms"
+  ]
+}
