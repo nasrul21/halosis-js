@@ -1,8 +1,16 @@
 {
   "name": "halosis",
   "version": "0.1.0",
-  "description": "Server-side Node.js SDK for the Halosis API",
+  "description": "Unofficial server-side Node.js SDK for the Halosis API",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nasrul21/halosis-js.git"
+  },
+  "homepage": "https://github.com/nasrul21/halosis-js#readme",
+  "bugs": {
+    "url": "https://github.com/nasrul21/halosis-js/issues"
+  },
   "private": true,
   "type": "module",
   "main": "./dist/index.cjs",
@@ -37,6 +45,7 @@
     "halosis",
     "sdk",
     "api",
+    "unofficial",
     "whatsapp",
     "sms"
   ],
