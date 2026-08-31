@@ -21,6 +21,7 @@ export class Halosis {
   readonly fetch: typeof globalThis.fetch;
 
   readonly #accessToken?: string;
+  readonly #transport: HttpTransport;
 
   /** Whether this client was configured with an API access token. */
   get hasAccessToken(): boolean {
@@ -46,6 +47,19 @@ export class Halosis {
 
       this.#accessToken = accessToken;
     }
+
+    this.#transport = new HttpTransport({
+      accessToken: this.#accessToken,
+      baseUrl: this.baseUrl,
+      fetch: this.fetch,
+      headers: this.headers,
+      timeout: this.timeout,
+    });
+  }
+
+  /** Sends a low-level request to a Halosis API path. */
+  request<T>(method: HttpMethod, path: string, options?: RequestOptions): Promise<T> {
+    return this.#transport.request<T>(method, path, options);
   }
 }
 
@@ -81,3 +95,5 @@ function validateTimeout(value: number): number {
 function normalizeHeaders(value?: HeadersInit): Readonly<Record<string, string>> {
   return Object.freeze(Object.fromEntries(new Headers(value)));
 }
+import { HttpTransport } from "./http.js";
+import type { HttpMethod, RequestOptions } from "./http.js";
