@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { Halosis } from "../src/client.js";
+import { HalosisError } from "../src/errors.js";
 
 describe("HTTP transport", () => {
   it("sends an authenticated request and parses JSON", async () => {
@@ -128,9 +129,11 @@ describe("HTTP transport", () => {
       .mockResolvedValue(Response.json({ message: "Invalid request" }, { status: 422 }));
     const client = new Halosis({ fetch: fetchMock });
 
-    await expect(client.request("POST", "/invalid", { body: {} })).rejects.toThrow(
-      "Halosis API request failed with status 422",
-    );
+    await expect(client.request("POST", "/invalid", { body: {} })).rejects.toMatchObject({
+      name: "HalosisError",
+      message: "Invalid request",
+      status: 422,
+    } satisfies Partial<HalosisError>);
   });
 
   it("rejects absolute paths and GET request bodies", async () => {

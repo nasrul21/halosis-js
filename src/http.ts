@@ -103,8 +103,11 @@ export class HttpTransport {
       const responseBody = await parseResponseBody(response);
 
       if (!response.ok) {
-        throw new Error(`Halosis API request failed with status ${response.status}`, {
-          cause: responseBody,
+        throw new HalosisError({
+          body: responseBody,
+          method,
+          response,
+          url,
         });
       }
 
@@ -224,3 +227,4 @@ async function parseResponseBody(response: Response): Promise<unknown> {
 
   return text;
 }
+import { HalosisError } from "./errors.js";
