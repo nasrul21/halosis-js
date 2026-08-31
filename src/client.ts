@@ -1,13 +1,13 @@
 import { HttpTransport } from "./http.js";
-import type { HttpMethod, RequestOptions } from "./http.js";
+import type { AccessToken, HttpMethod, RequestOptions } from "./http.js";
 import { AuthResource } from "./resources/auth.js";
 
 const DEFAULT_BASE_URL = "https://api.halosis.id";
 const DEFAULT_TIMEOUT = 30_000;
 
 export interface HalosisClientOptions {
-  /** Long-lived Halosis access token used to authenticate API requests. */
-  accessToken?: string;
+  /** Long-lived token or a provider evaluated before each authenticated request. */
+  accessToken?: AccessToken;
   /** API origin or base path. Defaults to the production Halosis API. */
   baseUrl?: string;
   /** Additional headers included with every request. */
@@ -25,7 +25,7 @@ export class Halosis {
   readonly headers: Readonly<Record<string, string>>;
   readonly fetch: typeof globalThis.fetch;
 
-  readonly #accessToken?: string;
+  readonly #accessToken?: AccessToken;
   readonly #transport: HttpTransport;
 
   /** Whether this client was configured with an API access token. */
@@ -44,13 +44,7 @@ export class Halosis {
     }
 
     if (options.accessToken !== undefined) {
-      const accessToken = options.accessToken.trim();
-
-      if (accessToken.length === 0) {
-        throw new TypeError("accessToken cannot be empty");
-      }
-
-      this.#accessToken = accessToken;
+      this.#accessToken = normalizeAccessToken(options.accessToken);
     }
 
     this.#transport = new HttpTransport({
@@ -67,6 +61,23 @@ export class Halosis {
   request<T>(method: HttpMethod, path: string, options?: RequestOptions): Promise<T> {
     return this.#transport.request<T>(method, path, options);
   }
+}
+
+function normalizeAccessToken(value: AccessToken): AccessToken {
+  if (typeof value === "function") {
+    return value;
+  }
+
+  if (typeof value !== "string") {
+    throw new TypeError("accessToken must be a string or a token provider");
+  }
+
+  const accessToken = value.trim();
+  if (accessToken.length === 0) {
+    throw new TypeError("accessToken cannot be empty");
+  }
+
+  return accessToken;
 }
 
 function normalizeBaseUrl(value: string): string {

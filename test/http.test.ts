@@ -150,14 +150,16 @@ describe("HTTP transport", () => {
   it("forwards cancellation to fetch", async () => {
     const fetchMock = vi.fn<typeof fetch>((_input, init) => {
       return new Promise((_resolve, reject) => {
-        init?.signal?.addEventListener(
-          "abort",
-          () => {
-            const reason = init.signal?.reason as unknown;
-            reject(reason instanceof Error ? reason : new Error("Request aborted"));
-          },
-          { once: true },
-        );
+        const rejectWithAbortReason = (): void => {
+          const reason = init?.signal?.reason as unknown;
+          reject(reason instanceof Error ? reason : new Error("Request aborted"));
+        };
+
+        if (init?.signal?.aborted) {
+          rejectWithAbortReason();
+        } else {
+          init?.signal?.addEventListener("abort", rejectWithAbortReason, { once: true });
+        }
       });
     });
     const client = new Halosis({ fetch: fetchMock });

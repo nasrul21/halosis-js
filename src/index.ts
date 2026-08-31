@@ -3,6 +3,8 @@ export type { HalosisClientOptions } from "./client.js";
 export { HalosisError } from "./errors.js";
 export { createFormData } from "./http.js";
 export type {
+  AccessToken,
+  AccessTokenProvider,
   HttpMethod,
   MultipartFields,
   MultipartFile,

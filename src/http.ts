@@ -1,5 +1,8 @@
 export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
+export type AccessTokenProvider = () => string | undefined | Promise<string | undefined>;
+export type AccessToken = string | AccessTokenProvider;
+
 export type QueryValue =
   | string
   | number
@@ -37,7 +40,7 @@ export interface RequestOptions {
 }
 
 interface HttpTransportOptions {
-  accessToken: string | undefined;
+  accessToken: AccessToken | undefined;
   baseUrl: string;
   fetch: typeof globalThis.fetch;
   headers: Readonly<Record<string, string>>;
@@ -45,7 +48,7 @@ interface HttpTransportOptions {
 }
 
 export class HttpTransport {
-  readonly #accessToken: string | undefined;
+  readonly #accessToken: AccessToken | undefined;
   readonly #baseUrl: string;
   readonly #fetch: typeof globalThis.fetch;
   readonly #headers: Readonly<Record<string, string>>;
@@ -67,8 +70,11 @@ export class HttpTransport {
       headers.set(name, value);
     }
 
-    if (options.authenticated !== false && this.#accessToken !== undefined) {
-      headers.set("authorization", `Bearer ${this.#accessToken}`);
+    if (options.authenticated !== false) {
+      const accessToken = await resolveAccessToken(this.#accessToken);
+      if (accessToken !== undefined) {
+        headers.set("authorization", `Bearer ${accessToken}`);
+      }
     }
 
     if (options.body !== undefined && options.form !== undefined) {
@@ -116,6 +122,25 @@ export class HttpTransport {
       cleanup();
     }
   }
+}
+
+async function resolveAccessToken(value: AccessToken | undefined): Promise<string | undefined> {
+  const token = typeof value === "function" ? await value() : value;
+
+  if (token === undefined) {
+    return undefined;
+  }
+
+  if (typeof token !== "string") {
+    throw new TypeError("accessToken provider must return a string or undefined");
+  }
+
+  const normalizedToken = token.trim();
+  if (normalizedToken.length === 0) {
+    throw new TypeError("accessToken provider returned an empty token");
+  }
+
+  return normalizedToken;
 }
 
 export function createFormData(fields: MultipartFields): FormData {
