@@ -3,6 +3,7 @@ import type { AccessToken, HttpMethod, RequestOptions } from "./http.js";
 import { AuthResource } from "./resources/auth.js";
 import { MessagesResource } from "./resources/messages.js";
 import { TemplateMessagesResource } from "./resources/template-messages.js";
+import { CarouselMessagesResource } from "./resources/carousel-messages.js";
 
 const DEFAULT_BASE_URL = "https://api.halosis.id";
 const DEFAULT_TIMEOUT = 30_000;
@@ -24,6 +25,7 @@ export class Halosis {
   readonly auth: AuthResource;
   readonly messages: MessagesResource;
   readonly templateMessages: TemplateMessagesResource;
+  readonly carouselMessages: CarouselMessagesResource;
   readonly baseUrl: string;
   readonly timeout: number;
   readonly headers: Readonly<Record<string, string>>;
@@ -61,6 +63,7 @@ export class Halosis {
     this.auth = new AuthResource(this.#transport);
     this.messages = new MessagesResource(this.#transport);
     this.templateMessages = new TemplateMessagesResource(this.#transport);
+    this.carouselMessages = new CarouselMessagesResource(this.#transport);
   }
 
   /** Sends a low-level request to a Halosis API path. */

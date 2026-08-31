@@ -40,6 +40,14 @@ export type {
   TemplateHeaderMedia,
   TemplateHeaderText,
 } from "./resources/template-messages.js";
+export { CarouselMessagesResource } from "./resources/carousel-messages.js";
+export type {
+  CarouselButton,
+  CarouselCard,
+  CarouselCardHeader,
+  SendCarouselParams,
+  SendCarouselResult,
+} from "./resources/carousel-messages.js";
 
 /** The version of the Halosis SDK package. */
 export const VERSION = "0.1.0";

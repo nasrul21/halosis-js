@@ -1,6 +1,8 @@
 import type { HttpTransport } from "../http.js";
 import { TemplateMessagesResource } from "./template-messages.js";
 import type { SendTemplateParams, SendTemplateResult } from "./template-messages.js";
+import { CarouselMessagesResource } from "./carousel-messages.js";
+import type { SendCarouselParams, SendCarouselResult } from "./carousel-messages.js";
 
 export interface MessageRecipient {
   /** Halosis WhatsApp sender number. */
@@ -47,15 +49,22 @@ type MediaType = "image" | "video";
 export class MessagesResource {
   readonly #transport: HttpTransport;
   readonly #templateMessages: TemplateMessagesResource;
+  readonly #carouselMessages: CarouselMessagesResource;
 
   constructor(transport: HttpTransport) {
     this.#transport = transport;
     this.#templateMessages = new TemplateMessagesResource(transport);
+    this.#carouselMessages = new CarouselMessagesResource(transport);
   }
 
   /** Sends an approved WhatsApp template message. */
   sendTemplate(params: SendTemplateParams): Promise<SendTemplateResult> {
     return this.#templateMessages.send(params);
+  }
+
+  /** Sends a WhatsApp carousel template message. */
+  sendCarousel(params: SendCarouselParams): Promise<SendCarouselResult> {
+    return this.#carouselMessages.send(params);
   }
 
   async sendText(params: SendTextParams): Promise<SendMessageResult> {
