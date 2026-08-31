@@ -15,10 +15,12 @@
   "type": "module",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
+  "browser": "./dist/browser-error.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
+      "browser": "./dist/browser-error.js",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
     }
