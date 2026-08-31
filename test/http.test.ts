@@ -64,6 +64,64 @@ describe("HTTP transport", () => {
     await expect(client.request("DELETE", "/empty")).resolves.toBeUndefined();
   });
 
+  it("encodes multipart fields and files", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ status: true }));
+    const client = new Halosis({
+      accessToken: "secret",
+      fetch: fetchMock,
+      headers: { "content-type": "application/json" },
+    });
+    const image = new Blob(["image data"], { type: "image/png" });
+
+    await client.request("POST", "/v1/products", {
+      form: {
+        "category_id[]": [18070, 18083],
+        "images[]": { data: image, filename: "product.png" },
+        name: "Example product",
+        optional: undefined,
+        "warehouses[0][id_warehouse]": 1414,
+      },
+    });
+
+    const [, init] = fetchMock.mock.calls[0] ?? [];
+    const headers = new Headers(init?.headers);
+    const form = init?.body;
+
+    expect(headers.has("content-type")).toBe(false);
+    expect(form).toBeInstanceOf(FormData);
+
+    const formData = form as FormData;
+    expect(formData.getAll("category_id[]")).toEqual(["18070", "18083"]);
+    expect(formData.get("name")).toBe("Example product");
+    expect(formData.get("warehouses[0][id_warehouse]")).toBe("1414");
+    expect(formData.has("optional")).toBe(false);
+
+    const uploadedImage = formData.get("images[]") as Blob & { name: string };
+    expect(uploadedImage).toBeInstanceOf(Blob);
+    expect(uploadedImage.name).toBe("product.png");
+    expect(uploadedImage.type).toBe("image/png");
+  });
+
+  it("accepts an existing FormData instance", async () => {
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(Response.json({ status: true }));
+    const client = new Halosis({ fetch: fetchMock });
+    const form = new FormData();
+    form.append("name", "Example product");
+
+    await client.request("POST", "/v1/products", { form });
+
+    const [, init] = fetchMock.mock.calls[0] ?? [];
+    expect(init?.body).toBe(form);
+  });
+
+  it("rejects conflicting body types", async () => {
+    const client = new Halosis({ fetch: vi.fn<typeof fetch>() });
+
+    await expect(
+      client.request("POST", "/v1/products", { body: {}, form: new FormData() }),
+    ).rejects.toThrow("body and form cannot be used together");
+  });
+
   it("rejects unsuccessful responses", async () => {
     const fetchMock = vi
       .fn<typeof fetch>()

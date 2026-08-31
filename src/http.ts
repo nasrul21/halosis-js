@@ -9,6 +9,18 @@ export type QueryValue =
   | undefined
   | readonly (string | number | boolean | Date | null | undefined)[];
 
+export interface MultipartFile {
+  /** File contents. Use `openAsBlob` from `node:fs` for files on disk. */
+  data: Blob;
+  /** Filename sent in the multipart content disposition. */
+  filename: string;
+}
+
+export type MultipartScalar =
+  string | number | boolean | Date | Blob | MultipartFile | null | undefined;
+export type MultipartValue = MultipartScalar | readonly MultipartScalar[];
+export type MultipartFields = Readonly<Record<string, MultipartValue>>;
+
 export interface RequestOptions {
   /** Set to false for unauthenticated endpoints such as login. */
   authenticated?: boolean;
@@ -16,6 +28,8 @@ export interface RequestOptions {
   body?: unknown;
   /** Headers applied to this request. */
   headers?: HeadersInit;
+  /** Multipart form data or fields. Cannot be combined with `body`. */
+  form?: FormData | MultipartFields;
   /** Query parameters. Arrays are encoded as repeated keys. */
   query?: Readonly<Record<string, QueryValue>>;
   /** Signal used to cancel the request. */
@@ -57,14 +71,24 @@ export class HttpTransport {
       headers.set("authorization", `Bearer ${this.#accessToken}`);
     }
 
-    let body: string | undefined;
-    if (options.body !== undefined) {
+    if (options.body !== undefined && options.form !== undefined) {
+      throw new TypeError("body and form cannot be used together");
+    }
+
+    let body: BodyInit | undefined;
+    if (options.body !== undefined || options.form !== undefined) {
       if (method === "GET") {
         throw new TypeError("GET requests cannot include a body");
       }
+    }
 
+    if (options.body !== undefined) {
       headers.set("content-type", "application/json");
       body = JSON.stringify(options.body);
+    } else if (options.form !== undefined) {
+      // Native fetch must generate the multipart boundary in this header.
+      headers.delete("content-type");
+      body = options.form instanceof FormData ? options.form : createFormData(options.form);
     }
 
     const { cleanup, signal } = createRequestSignal(this.#timeout, options.signal);
@@ -89,6 +113,47 @@ export class HttpTransport {
       cleanup();
     }
   }
+}
+
+export function createFormData(fields: MultipartFields): FormData {
+  const form = new FormData();
+
+  for (const [name, rawValue] of Object.entries(fields)) {
+    const values: readonly MultipartScalar[] = Array.isArray(rawValue)
+      ? (rawValue as readonly MultipartScalar[])
+      : [rawValue as MultipartScalar];
+
+    for (const value of values) {
+      if (value === undefined || value === null) {
+        continue;
+      }
+
+      if (isMultipartFile(value)) {
+        if (value.filename.length === 0) {
+          throw new TypeError(`Multipart filename for ${name} cannot be empty`);
+        }
+
+        form.append(name, value.data, value.filename);
+      } else if (value instanceof Blob) {
+        form.append(name, value);
+      } else {
+        form.append(name, value instanceof Date ? value.toISOString() : String(value));
+      }
+    }
+  }
+
+  return form;
+}
+
+function isMultipartFile(value: MultipartScalar): value is MultipartFile {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "data" in value &&
+    value.data instanceof Blob &&
+    "filename" in value &&
+    typeof value.filename === "string"
+  );
 }
 
 function buildUrl(
