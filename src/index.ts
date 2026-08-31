@@ -48,6 +48,20 @@ export type {
   SendCarouselParams,
   SendCarouselResult,
 } from "./resources/carousel-messages.js";
+export { InteractiveMessagesResource } from "./resources/interactive-messages.js";
+export type {
+  ButtonItem,
+  InteractiveHeader,
+  InteractiveRecipient,
+  ListItem,
+  SendButtonReplyParams,
+  SendCtaUrlParams,
+  SendFlowParams,
+  SendInteractiveParams,
+  SendInteractiveResult,
+  SendListReplyParams,
+  SendLocationRequestParams,
+} from "./resources/interactive-messages.js";
 
 /** The version of the Halosis SDK package. */
 export const VERSION = "0.1.0";

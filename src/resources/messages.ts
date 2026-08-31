@@ -3,6 +3,16 @@ import { TemplateMessagesResource } from "./template-messages.js";
 import type { SendTemplateParams, SendTemplateResult } from "./template-messages.js";
 import { CarouselMessagesResource } from "./carousel-messages.js";
 import type { SendCarouselParams, SendCarouselResult } from "./carousel-messages.js";
+import { InteractiveMessagesResource } from "./interactive-messages.js";
+import type {
+  SendButtonReplyParams,
+  SendCtaUrlParams,
+  SendFlowParams,
+  SendInteractiveParams,
+  SendInteractiveResult,
+  SendListReplyParams,
+  SendLocationRequestParams,
+} from "./interactive-messages.js";
 
 export interface MessageRecipient {
   /** Halosis WhatsApp sender number. */
@@ -50,11 +60,13 @@ export class MessagesResource {
   readonly #transport: HttpTransport;
   readonly #templateMessages: TemplateMessagesResource;
   readonly #carouselMessages: CarouselMessagesResource;
+  readonly #interactiveMessages: InteractiveMessagesResource;
 
   constructor(transport: HttpTransport) {
     this.#transport = transport;
     this.#templateMessages = new TemplateMessagesResource(transport);
     this.#carouselMessages = new CarouselMessagesResource(transport);
+    this.#interactiveMessages = new InteractiveMessagesResource(transport);
   }
 
   /** Sends an approved WhatsApp template message. */
@@ -65,6 +77,30 @@ export class MessagesResource {
   /** Sends a WhatsApp carousel template message. */
   sendCarousel(params: SendCarouselParams): Promise<SendCarouselResult> {
     return this.#carouselMessages.send(params);
+  }
+
+  sendListReply(params: SendListReplyParams): Promise<SendInteractiveResult> {
+    return this.#interactiveMessages.sendListReply(params);
+  }
+
+  sendButtonReply(params: SendButtonReplyParams): Promise<SendInteractiveResult> {
+    return this.#interactiveMessages.sendButtonReply(params);
+  }
+
+  sendCtaUrl(params: SendCtaUrlParams): Promise<SendInteractiveResult> {
+    return this.#interactiveMessages.sendCtaUrl(params);
+  }
+
+  sendLocationRequest(params: SendLocationRequestParams): Promise<SendInteractiveResult> {
+    return this.#interactiveMessages.sendLocationRequest(params);
+  }
+
+  sendFlow(params: SendFlowParams): Promise<SendInteractiveResult> {
+    return this.#interactiveMessages.sendFlow(params);
+  }
+
+  sendInteractive(params: SendInteractiveParams): Promise<SendInteractiveResult> {
+    return this.#interactiveMessages.send(params);
   }
 
   async sendText(params: SendTextParams): Promise<SendMessageResult> {
