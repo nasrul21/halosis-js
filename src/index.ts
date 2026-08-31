@@ -11,6 +11,13 @@ export type {
   QueryValue,
   RequestOptions,
 } from "./http.js";
+export { AuthResource } from "./resources/auth.js";
+export type {
+  AccessTokenResult,
+  ExchangeRefreshTokenParams,
+  LoginParams,
+  LoginResult,
+} from "./resources/auth.js";
 
 /** The version of the Halosis SDK package. */
 export const VERSION = "0.1.0";

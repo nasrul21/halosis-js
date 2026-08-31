@@ -1,3 +1,7 @@
+import { HttpTransport } from "./http.js";
+import type { HttpMethod, RequestOptions } from "./http.js";
+import { AuthResource } from "./resources/auth.js";
+
 const DEFAULT_BASE_URL = "https://api.halosis.id";
 const DEFAULT_TIMEOUT = 30_000;
 
@@ -15,6 +19,7 @@ export interface HalosisClientOptions {
 }
 
 export class Halosis {
+  readonly auth: AuthResource;
   readonly baseUrl: string;
   readonly timeout: number;
   readonly headers: Readonly<Record<string, string>>;
@@ -55,6 +60,7 @@ export class Halosis {
       headers: this.headers,
       timeout: this.timeout,
     });
+    this.auth = new AuthResource(this.#transport);
   }
 
   /** Sends a low-level request to a Halosis API path. */
@@ -95,5 +101,3 @@ function validateTimeout(value: number): number {
 function normalizeHeaders(value?: HeadersInit): Readonly<Record<string, string>> {
   return Object.freeze(Object.fromEntries(new Headers(value)));
 }
-import { HttpTransport } from "./http.js";
-import type { HttpMethod, RequestOptions } from "./http.js";
