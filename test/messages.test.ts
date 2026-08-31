@@ -15,6 +15,18 @@ function createClient(): { client: Halosis; fetchMock: ReturnType<typeof vi.fn<t
 }
 
 describe("MessagesResource", () => {
+  it("exposes template sending as a messages convenience method", async () => {
+    const { client, fetchMock } = createClient();
+
+    await client.messages.sendTemplate({
+      to: "628222222222",
+      templateName: "welcome",
+      languageCode: "id",
+    });
+
+    expect(fetchMock).toHaveBeenCalledOnce();
+  });
+
   it("sends a text message", async () => {
     const { client, fetchMock } = createClient();
 

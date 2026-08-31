@@ -1,4 +1,6 @@
 import type { HttpTransport } from "../http.js";
+import { TemplateMessagesResource } from "./template-messages.js";
+import type { SendTemplateParams, SendTemplateResult } from "./template-messages.js";
 
 export interface MessageRecipient {
   /** Halosis WhatsApp sender number. */
@@ -44,9 +46,16 @@ type MediaType = "image" | "video";
 
 export class MessagesResource {
   readonly #transport: HttpTransport;
+  readonly #templateMessages: TemplateMessagesResource;
 
   constructor(transport: HttpTransport) {
     this.#transport = transport;
+    this.#templateMessages = new TemplateMessagesResource(transport);
+  }
+
+  /** Sends an approved WhatsApp template message. */
+  sendTemplate(params: SendTemplateParams): Promise<SendTemplateResult> {
+    return this.#templateMessages.send(params);
   }
 
   async sendText(params: SendTextParams): Promise<SendMessageResult> {

@@ -31,6 +31,15 @@ export type {
   SendTextParams,
   SendVideoParams,
 } from "./resources/messages.js";
+export { TemplateMessagesResource } from "./resources/template-messages.js";
+export type {
+  SendTemplateParams,
+  SendTemplateResult,
+  TemplateButton,
+  TemplateHeader,
+  TemplateHeaderMedia,
+  TemplateHeaderText,
+} from "./resources/template-messages.js";
 
 /** The version of the Halosis SDK package. */
 export const VERSION = "0.1.0";
